@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import { TextField } from "@mui/material";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useRegStore } from "./store/regStore";
 function Register() {
   const username = useRegStore((state) => state.username);
@@ -16,7 +17,20 @@ function Register() {
   const updateUname = useRegStore((state) => state.updateUname);
 
   const navigate = useNavigate();
-
+  const handleSubmit = async (e) => {
+    console.log("hi");
+    e.preventDefault();
+    const res = await axios.post(`http://localhost:8000/reg`, {
+      username,
+      password,
+      firstname,
+      lastname,
+    });
+    console.log(res.status);
+    if (res.status === 200) {
+      navigate("/Login");
+    }
+  };
   return (
     <>
       <form
@@ -28,6 +42,7 @@ function Register() {
           margin: "auto",
           marginTop: "4rem",
         }}
+        onSubmit={(e) => handleSubmit(e)}
       >
         <Typography variant="h5" component="h2">
           Register form
@@ -53,6 +68,7 @@ function Register() {
           required
           value={username}
           onChange={(e) => updateUname(e.target.value)}
+          inputProps={{ minLength: 4 }}
         />
         <TextField
           label="Password"
@@ -61,6 +77,7 @@ function Register() {
           type={"password"}
           value={password}
           onChange={(e) => updatePwd(e.target.value)}
+          inputProps={{ minLength: 6 }}
         />
         <div style={{ display: "flex", justifyContent: "space-evenly" }}>
           <Button variant="contained" type="submit">

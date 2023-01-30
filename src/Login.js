@@ -1,10 +1,8 @@
 import { useLoginStore } from "./store/loginStore";
 import Button from "@mui/material/Button";
 import { TextField } from "@mui/material";
-import { Box } from "@mui/material";
-import { display } from "@mui/system";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 import { Typography } from "@mui/material";
 function Login() {
   const navigate = useNavigate();
@@ -13,7 +11,23 @@ function Login() {
   const password = useLoginStore((state) => state.password);
   const updateName = useLoginStore((state) => state.updateName);
   const updatePwd = useLoginStore((state) => state.updatePwd);
+  const handleSubmit = async (e) => {
+    console.log("hi");
+    e.preventDefault();
+    axios.defaults.withCredentials = true;
 
+    const res = await axios(`http://localhost:8000/login`, {
+      method: "post",
+      data: { username: name, password },
+      // withCredentials: true,
+    }).then((res) => {
+      console.log(res); // undefined
+      // console.log(document.cookie); // nope
+      if (res.status === 200) {
+        navigate("/");
+      }
+    });
+  };
   return (
     <>
       {/* hi
@@ -35,6 +49,7 @@ function Login() {
           margin: "auto",
           marginTop: "4rem",
         }}
+        onSubmit={(e) => handleSubmit(e)}
       >
         <Typography variant="h5" component="h2">
           Login form
@@ -45,6 +60,7 @@ function Login() {
           variant="outlined"
           value={name}
           onChange={(e) => updateName(e.target.value)}
+          required
         />
         <TextField
           label="Password"
@@ -52,9 +68,13 @@ function Login() {
           type={"password"}
           value={password}
           onChange={(e) => updatePwd(e.target.value)}
+          required
+          inputProps={{ minLength: 6 }}
         />
         <div style={{ display: "flex", justifyContent: "space-evenly" }}>
-          <Button variant="contained">Login</Button>
+          <Button variant="contained" type="submit">
+            Login
+          </Button>
           <Button
             variant="contained"
             onClick={() => {
